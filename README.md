@@ -4,6 +4,7 @@ A Python-based vulnerability assessment tool that performs automated,
 multi-layer security scanning against any IP address, domain, URL, or subnet.
 Results are delivered through a real-time Flask SOC dashboard.
 
+
 ![Vulnerability Assessment Scanner Dashboard](assets/dashboard.png)
 
 ## Features
