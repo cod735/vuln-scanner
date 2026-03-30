@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block page_title %}Scan History{% endblock %}
+{% block page_sub %}All past scans recorded by the scanner{% endblock %}
+
+{% block content %}
+{% if not history %}
+<div class="empty-state">
+    <h3>No scan history</h3>
+    <p>Completed scans appear here automatically</p>
+</div>
+{% else %}
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-label">Total Scans</div>
+        <div class="stat-value">{{ history | length }}</div>
+        <div class="stat-sub">recorded</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Scan History</span>
+        <span class="badge badge-info">{{ history | length }} scans</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Scan ID</th>
+                    <th>Target</th>
+                    <th>IP</th>
+                    <th>Scan Time</th>
+                    <th>Duration</th>
+                    <th>Open Ports</th>
+                    <th>CVEs</th>
+                    <th>OWASP Fail</th>
+                    <th>MITRE</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for scan in history | reverse %}
+            <tr>
+                <td class="monospace" style="font-size:11px;color:var(--text-muted)">
+                    {{ scan.scan_id }}
+                </td>
+                <td style="color:var(--accent-cyan)">{{ scan.target }}</td>
+                <td class="monospace">{{ scan.ip }}</td>
+                <td class="monospace" style="font-size:12px">
+                    {{ scan.scan_time[:19] if scan.scan_time else '—' }}
+                </td>
+                <td>{{ scan.elapsed_sec }}s</td>
+                <td>
+                    <span class="badge badge-open">{{ scan.open_count }}</span>
+                </td>
+                <td>
+                    {% set cs = scan.cve_summary %}
+                    {% if cs and cs.total > 0 %}
+                        <span class="badge badge-{{ 'critical' if cs.critical > 0 else 'high' if cs.high > 0 else 'medium' }}">
+                            {{ cs.total }}
+                        </span>
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    {% set os = scan.owasp_summary %}
+                    {% if os and os.fail > 0 %}
+                        <span class="badge badge-fail">{{ os.fail }}</span>
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    {% set ms = scan.mitre_summary %}
+                    {{ ms.total_techniques if ms else 0 }} techniques
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

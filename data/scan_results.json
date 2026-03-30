@@ -1,0 +1,240 @@
+{
+  "target": "127.0.0.1",
+  "ip": "127.0.0.1",
+  "scan_time": "2026-03-30T03:53:25.987790",
+  "elapsed_sec": 0.01,
+  "total_scanned": 3,
+  "open_count": 1,
+  "open_ports": [
+    {
+      "port": 443,
+      "state": "open",
+      "service": "HTTPS",
+      "protocol": "tcp",
+      "banner": "HTTP/1.1 302 Found\r\nlocation: /app/login?\r\nosd-name: wazuh.dashboard\r\nx-frame-options: sameorigin\r\ncache-control: private, no-cache, no-store, must-revalidate\r\nset-cookie: security_authentication=; Ma",
+      "software": "unknown",
+      "version": "unknown",
+      "raw_banner": "HTTP/1.1 302 Found"
+    }
+  ],
+  "has_http": false,
+  "has_https": true,
+  "has_web": true,
+  "os_detection": {
+    "ttl": null,
+    "os_guess": "Unknown (run as root for TTL detection)",
+    "method": "none"
+  },
+  "all_cves": [],
+  "cve_summary": {
+    "total": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "owasp_results": [
+    {
+      "check": "A01 \u2014 Broken Access Control",
+      "status": "PASS",
+      "findings": [],
+      "detail": "No obvious access control issues detected"
+    },
+    {
+      "check": "A02 \u2014 Cryptographic Failures",
+      "status": "FAIL",
+      "findings": [
+        "TLS certificate could not be verified"
+      ],
+      "detail": "1 cryptographic issue(s) found"
+    },
+    {
+      "check": "A03 \u2014 Injection",
+      "status": "WARN",
+      "findings": [],
+      "detail": "No injection errors triggered \u2014 manual testing recommended"
+    },
+    {
+      "check": "A04 \u2014 Insecure Design",
+      "status": "FAIL",
+      "findings": [
+        "MIME sniffing protection missing",
+        "Referrer policy not set",
+        "Permissions policy not set",
+        "Open redirect confirmed at /?url=http://evil.com",
+        "Open redirect confirmed at /?redirect=http://evil.com",
+        "Open redirect confirmed at /?next=http://evil.com"
+      ],
+      "detail": "6 insecure design indicator(s)"
+    },
+    {
+      "check": "A05 \u2014 Security Misconfiguration",
+      "status": "PASS",
+      "findings": [],
+      "detail": "No obvious misconfigurations detected"
+    },
+    {
+      "check": "A06 \u2014 Vulnerable & Outdated Components",
+      "status": "PASS",
+      "findings": [],
+      "detail": "No known vulnerable components detected"
+    },
+    {
+      "check": "A07 \u2014 Auth & Session Failures",
+      "status": "PASS",
+      "findings": [],
+      "detail": "No obvious auth/session issues detected"
+    },
+    {
+      "check": "A08 \u2014 Software & Data Integrity Failures",
+      "status": "PASS",
+      "findings": [],
+      "detail": "No SRI issues detected"
+    },
+    {
+      "check": "A09 \u2014 Logging & Monitoring Failures",
+      "status": "WARN",
+      "findings": [
+        "Unexpected response 401 to invalid path \u2014 error handling may be misconfigured"
+      ],
+      "detail": "1 logging/monitoring issue(s) found"
+    },
+    {
+      "check": "A10 \u2014 Server-Side Request Forgery (SSRF)",
+      "status": "PASS",
+      "findings": [],
+      "detail": "No SSRF indicators detected \u2014 manual testing recommended"
+    }
+  ],
+  "owasp_summary": {
+    "total": 10,
+    "pass": 6,
+    "warn": 2,
+    "fail": 2,
+    "skip": 0
+  },
+  "mitre_results": [
+    {
+      "technique_id": "T1040",
+      "technique_name": "Network Sniffing",
+      "tactic": "Credential Access",
+      "description": "Weak/no TLS allows interception of credentials and sensitive data",
+      "source": "A02 \u2014 Cryptographic Failures",
+      "status": "FAIL",
+      "evidence": "1 cryptographic issue(s) found",
+      "findings": [
+        "TLS certificate could not be verified"
+      ]
+    },
+    {
+      "technique_id": "T1190",
+      "technique_name": "Exploit Public-Facing Application",
+      "tactic": "Initial Access",
+      "description": "Injection vulnerabilities allow exploitation of the application layer",
+      "source": "A03 \u2014 Injection",
+      "status": "WARN",
+      "evidence": "No injection errors triggered \u2014 manual testing recommended",
+      "findings": []
+    },
+    {
+      "technique_id": "T1592",
+      "technique_name": "Gather Victim Host Information",
+      "tactic": "Reconnaissance",
+      "description": "Missing security headers reveal information about the target",
+      "source": "A04 \u2014 Insecure Design",
+      "status": "FAIL",
+      "evidence": "6 insecure design indicator(s)",
+      "findings": [
+        "MIME sniffing protection missing",
+        "Referrer policy not set",
+        "Permissions policy not set",
+        "Open redirect confirmed at /?url=http://evil.com",
+        "Open redirect confirmed at /?redirect=http://evil.com",
+        "Open redirect confirmed at /?next=http://evil.com"
+      ]
+    },
+    {
+      "technique_id": "T1562.006",
+      "technique_name": "Impair Defenses: Indicator Blocking",
+      "tactic": "Defense Evasion",
+      "description": "Poor logging means attacker activity may go undetected",
+      "source": "A09 \u2014 Logging & Monitoring Failures",
+      "status": "WARN",
+      "evidence": "1 logging/monitoring issue(s) found",
+      "findings": [
+        "Unexpected response 401 to invalid path \u2014 error handling may be misconfigured"
+      ]
+    }
+  ],
+  "mitre_by_tactic": {
+    "Credential Access": [
+      {
+        "technique_id": "T1040",
+        "technique_name": "Network Sniffing",
+        "tactic": "Credential Access",
+        "description": "Weak/no TLS allows interception of credentials and sensitive data",
+        "source": "A02 \u2014 Cryptographic Failures",
+        "status": "FAIL",
+        "evidence": "1 cryptographic issue(s) found",
+        "findings": [
+          "TLS certificate could not be verified"
+        ]
+      }
+    ],
+    "Initial Access": [
+      {
+        "technique_id": "T1190",
+        "technique_name": "Exploit Public-Facing Application",
+        "tactic": "Initial Access",
+        "description": "Injection vulnerabilities allow exploitation of the application layer",
+        "source": "A03 \u2014 Injection",
+        "status": "WARN",
+        "evidence": "No injection errors triggered \u2014 manual testing recommended",
+        "findings": []
+      }
+    ],
+    "Reconnaissance": [
+      {
+        "technique_id": "T1592",
+        "technique_name": "Gather Victim Host Information",
+        "tactic": "Reconnaissance",
+        "description": "Missing security headers reveal information about the target",
+        "source": "A04 \u2014 Insecure Design",
+        "status": "FAIL",
+        "evidence": "6 insecure design indicator(s)",
+        "findings": [
+          "MIME sniffing protection missing",
+          "Referrer policy not set",
+          "Permissions policy not set",
+          "Open redirect confirmed at /?url=http://evil.com",
+          "Open redirect confirmed at /?redirect=http://evil.com",
+          "Open redirect confirmed at /?next=http://evil.com"
+        ]
+      }
+    ],
+    "Defense Evasion": [
+      {
+        "technique_id": "T1562.006",
+        "technique_name": "Impair Defenses: Indicator Blocking",
+        "tactic": "Defense Evasion",
+        "description": "Poor logging means attacker activity may go undetected",
+        "source": "A09 \u2014 Logging & Monitoring Failures",
+        "status": "WARN",
+        "evidence": "1 logging/monitoring issue(s) found",
+        "findings": [
+          "Unexpected response 401 to invalid path \u2014 error handling may be misconfigured"
+        ]
+      }
+    ]
+  },
+  "mitre_summary": {
+    "total_techniques": 4,
+    "total_tactics": 4,
+    "tactics": [
+      "Credential Access",
+      "Initial Access",
+      "Reconnaissance",
+      "Defense Evasion"
+    ]
+  }
+}

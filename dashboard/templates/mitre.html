@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}MITRE ATT&CK{% endblock %}
+{% block page_title %}MITRE ATT&CK{% endblock %}
+{% block page_sub %}Layer 5 — Technique and tactic mapping{% endblock %}
+
+{% block content %}
+{% if not data or not data.mitre_results %}
+<div class="empty-state">
+    <h3>No MITRE data</h3>
+    <p>Run a scan to generate ATT&CK mappings</p>
+</div>
+{% else %}
+{% set m = data.mitre_summary %}
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-label">Techniques</div>
+        <div class="stat-value">{{ m.total_techniques }}</div>
+        <div class="stat-sub">ATT&CK techniques mapped</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Tactics</div>
+        <div class="stat-value" style="color:var(--accent-purple)">{{ m.total_tactics }}</div>
+        <div class="stat-sub">ATT&CK tactics covered</div>
+    </div>
+</div>
+
+{% for tactic, techniques in data.mitre_by_tactic.items() %}
+<div class="tactic-group">
+    <div class="tactic-label">{{ tactic }} — {{ techniques | length }} technique(s)</div>
+    {% for t in techniques %}
+    <div class="technique-card">
+        <div class="technique-id">{{ t.technique_id }}</div>
+        <div class="technique-name">{{ t.technique_name }}</div>
+        <div class="technique-desc">{{ t.description }}</div>
+        <div class="technique-source">Source: {{ t.source }}</div>
+        {% if t.evidence %}
+        <div class="technique-source">Evidence: {{ t.evidence[:120] }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

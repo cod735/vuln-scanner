@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block page_title %}Overview{% endblock %}
+{% block page_sub %}Last scan: {{ data.scan_time[:19] if data and data.scan_time else 'No scan yet' }}{% endblock %}
+
+{% block content %}
+{% if not data or not data.target %}
+<div class="empty-state">
+    <h3>No scan data yet</h3>
+    <p>Enter a target above and click Scan — or run <code>python main.py &lt;target&gt;</code> from the terminal</p>
+</div>
+{% else %}
+
+<!-- Target strip -->
+<div class="target-strip">
+    <div class="target-item">
+        <label>Target</label>
+        <span>{{ data.target }}</span>
+    </div>
+    <div class="target-item">
+        <label>IP</label>
+        <span>{{ data.ip }}</span>
+    </div>
+    <div class="target-item">
+        <label>OS Guess</label>
+        <span>{{ data.os_detection.os_guess if data.os_detection else 'Unknown' }}</span>
+    </div>
+    <div class="target-item">
+        <label>Duration</label>
+        <span>{{ data.elapsed_sec }}s</span>
+    </div>
+    <div class="target-item">
+        <label>Web Target</label>
+        <span>{{ 'Yes' if data.has_web else 'No' }}</span>
+    </div>
+</div>
+
+<!-- Stat cards -->
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-label">Open Ports</div>
+        <div class="stat-value">{{ data.open_count }}</div>
+        <div class="stat-sub">TCP ports detected</div>
+    </div>
+    <div class="stat-card critical">
+        <div class="stat-label">Critical CVEs</div>
+        <div class="stat-value">{{ data.cve_summary.critical if data.cve_summary else 0 }}</div>
+        <div class="stat-sub">CVSS 9.0+</div>
+    </div>
+    <div class="stat-card high">
+        <div class="stat-label">High CVEs</div>
+        <div class="stat-value">{{ data.cve_summary.high if data.cve_summary else 0 }}</div>
+        <div class="stat-sub">CVSS 7.0–8.9</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">OWASP Failures</div>
+        <div class="stat-value" style="color:var(--fail)">
+            {{ data.owasp_summary.fail if data.owasp_summary else 0 }}
+        </div>
+        <div class="stat-sub">of 10 checks</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">MITRE Techniques</div>
+        <div class="stat-value" style="color:var(--accent-purple)">
+            {{ data.mitre_summary.total_techniques if data.mitre_summary else 0 }}
+        </div>
+        <div class="stat-sub">
+            {{ data.mitre_summary.total_tactics if data.mitre_summary else 0 }} tactics
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total CVEs</div>
+        <div class="stat-value">{{ data.cve_summary.total if data.cve_summary else 0 }}</div>
+        <div class="stat-sub">NVD database</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="chart-title">CVE Severity Breakdown</div>
+        <div class="chart-container">
+            <canvas id="cveChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">OWASP Check Results</div>
+        <div class="chart-container">
+            <canvas id="owaspChart"></canvas>
+        </div>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">Open Ports by Service</div>
+        <div class="chart-container">
+            <canvas id="portChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Open ports quick table -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Open Ports</span>
+        <a href="/ports" class="btn btn-ghost" style="font-size:12px">View all →</a>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Port</th>
+                    <th>Service</th>
+                    <th>Software</th>
+                    <th>Version</th>
+                    <th>CVEs</th>
+                    <th>Max Severity</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for port in data.open_ports %}
+            <tr>
+                <td><span class="port-number">{{ port.port }}/tcp</span></td>
+                <td>{{ port.service }}</td>
+                <td>{{ port.software if port.software != 'unknown' else '—' }}</td>
+                <td class="monospace">{{ port.version if port.version != 'unknown' else '—' }}</td>
+                <td>{{ port.cve_count if port.cve_count is defined else 0 }}</td>
+                <td>
+                    {% set sev = port.max_severity if port.max_severity is defined else 'NONE' %}
+                    <span class="badge badge-{{ sev.lower() }}">{{ sev }}</span>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if data and data.cve_summary %}
+buildDonut("cveChart",
+    ["Critical","High","Medium","Low"],
+    [{{ data.cve_summary.critical }},{{ data.cve_summary.high }},
+     {{ data.cve_summary.medium }},{{ data.cve_summary.low }}],
+    ["#fc8181","#f6ad55","#f6e05e","#68d391"]
+);
+{% endif %}
+{% if data and data.owasp_summary %}
+buildDonut("owaspChart",
+    ["Pass","Warn","Fail","Skip"],
+    [{{ data.owasp_summary.pass }},{{ data.owasp_summary.warn }},
+     {{ data.owasp_summary.fail }},{{ data.owasp_summary.skip }}],
+    ["#68d391","#f6ad55","#fc8181","#64748b"]
+);
+{% endif %}
+{% if data and data.open_ports %}
+buildBar("portChart",
+    [{% for p in data.open_ports %}"{{ p.port }}/{{ p.service }}"{% if not loop.last %},{% endif %}{% endfor %}],
+    [{% for p in data.open_ports %}{{ p.port }}{% if not loop.last %},{% endif %}{% endfor %}],
+    "rgba(0,212,255,0.5)"
+);
+{% endif %}
+</script>
+{% endblock %}

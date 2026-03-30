@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Ports{% endblock %}
+{% block page_title %}Port Discovery{% endblock %}
+{% block page_sub %}Layer 1 + 2 — Open ports and service fingerprinting{% endblock %}
+
+{% block content %}
+{% if not data or not data.open_ports %}
+<div class="empty-state">
+    <h3>No port data</h3>
+    <p>Run a scan to see results</p>
+</div>
+{% else %}
+<div class="stats-grid">
+    <div class="stat-card info">
+        <div class="stat-label">Open Ports</div>
+        <div class="stat-value">{{ data.open_count }}</div>
+        <div class="stat-sub">TCP discovered</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Web Services</div>
+        <div class="stat-value" style="color:var(--accent-green)">
+            {{ data.open_ports | selectattr('service', 'in', ['HTTP','HTTPS']) | list | length }}
+        </div>
+        <div class="stat-sub">HTTP / HTTPS</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">OS Detection</div>
+        <div class="stat-value" style="font-size:16px;padding-top:4px">
+            {{ data.os_detection.os_guess if data.os_detection else 'Unknown' }}
+        </div>
+        <div class="stat-sub">TTL: {{ data.os_detection.ttl if data.os_detection and data.os_detection.ttl else 'N/A' }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Fingerprinted</div>
+        <div class="stat-value" style="color:var(--accent-purple)">
+            {{ data.open_ports | selectattr('software', 'ne', 'unknown') | list | length }}
+        </div>
+        <div class="stat-sub">Software detected</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Open Ports — Full Detail</span>
+        <span class="badge badge-info">{{ data.open_count }} open</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Port</th>
+                    <th>Protocol</th>
+                    <th>Service</th>
+                    <th>State</th>
+                    <th>Software</th>
+                    <th>Version</th>
+                    <th>CVEs</th>
+                    <th>Banner</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for port in data.open_ports %}
+            <tr>
+                <td><span class="port-number">{{ port.port }}</span></td>
+                <td class="monospace">{{ port.protocol | upper }}</td>
+                <td>{{ port.service }}</td>
+                <td><span class="badge badge-open">OPEN</span></td>
+                <td>{{ port.software if port.software != 'unknown' else '—' }}</td>
+                <td class="monospace">{{ port.version if port.version != 'unknown' else '—' }}</td>
+                <td>
+                    {% if port.cve_count is defined and port.cve_count > 0 %}
+                        <span class="badge badge-{{ port.max_severity.lower() }}">
+                            {{ port.cve_count }} CVEs
+                        </span>
+                    {% else %}—{% endif %}
+                </td>
+                <td class="monospace" style="max-width:200px;overflow:hidden;
+                    text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text-muted)">
+                    {{ port.raw_banner[:60] if port.raw_banner is defined else
+                       port.banner[:60] if port.banner else '—' }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

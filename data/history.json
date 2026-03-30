@@ -1,0 +1,35 @@
+[
+  {
+    "scan_id": "20260330_035329",
+    "target": "127.0.0.1",
+    "ip": "127.0.0.1",
+    "scan_time": "2026-03-30T03:53:25.987790",
+    "elapsed_sec": 0.01,
+    "open_count": 1,
+    "cve_summary": {
+      "total": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "owasp_summary": {
+      "total": 10,
+      "pass": 6,
+      "warn": 2,
+      "fail": 2,
+      "skip": 0
+    },
+    "mitre_summary": {
+      "total_techniques": 4,
+      "total_tactics": 4,
+      "tactics": [
+        "Credential Access",
+        "Initial Access",
+        "Reconnaissance",
+        "Defense Evasion"
+      ]
+    },
+    "has_web": true
+  }
+]

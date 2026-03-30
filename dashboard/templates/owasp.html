@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}OWASP{% endblock %}
+{% block page_title %}OWASP Top 10{% endblock %}
+{% block page_sub %}Layer 4 — 2021 web application security checks{% endblock %}
+
+{% block content %}
+{% if not data or not data.owasp_results %}
+<div class="empty-state">
+    <h3>No OWASP data</h3>
+    <p>Run a scan against a web target (HTTP/HTTPS port must be open)</p>
+</div>
+{% else %}
+{% set o = data.owasp_summary %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Pass</div>
+        <div class="stat-value" style="color:var(--pass)">{{ o.pass }}</div>
+        <div class="stat-sub">checks passed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Warn</div>
+        <div class="stat-value" style="color:var(--warn)">{{ o.warn }}</div>
+        <div class="stat-sub">needs review</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Fail</div>
+        <div class="stat-value" style="color:var(--fail)">{{ o.fail }}</div>
+        <div class="stat-sub">issues confirmed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Skip</div>
+        <div class="stat-value" style="color:var(--skip)">{{ o.skip }}</div>
+        <div class="stat-sub">not applicable</div>
+    </div>
+</div>
+
+<div class="owasp-grid">
+{% for result in data.owasp_results %}
+<div class="owasp-item {{ result.status.lower() }}">
+    <div class="owasp-header">
+        <span class="owasp-name">{{ result.check }}</span>
+        <span class="badge badge-{{ result.status.lower() }}">{{ result.status }}</span>
+    </div>
+    <div class="owasp-detail">{{ result.detail }}</div>
+    {% if result.findings %}
+    <ul class="owasp-findings">
+        {% for finding in result.findings[:4] %}
+        <li>{{ finding }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

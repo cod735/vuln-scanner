@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}CVE Report{% endblock %}
+{% block page_title %}CVE Report{% endblock %}
+{% block page_sub %}Layer 3 — NVD API vulnerability enrichment{% endblock %}
+
+{% block content %}
+{% if not data or not data.all_cves %}
+<div class="empty-state">
+    <h3>No CVE data</h3>
+    <p>Run a scan with CVE lookup enabled (remove --skip-cve)</p>
+</div>
+{% else %}
+{% set cve = data.cve_summary %}
+<div class="stats-grid">
+    <div class="stat-card critical">
+        <div class="stat-label">Critical</div>
+        <div class="stat-value">{{ cve.critical }}</div>
+        <div class="stat-sub">CVSS 9.0+</div>
+    </div>
+    <div class="stat-card high">
+        <div class="stat-label">High</div>
+        <div class="stat-value">{{ cve.high }}</div>
+        <div class="stat-sub">CVSS 7.0–8.9</div>
+    </div>
+    <div class="stat-card medium">
+        <div class="stat-label">Medium</div>
+        <div class="stat-value">{{ cve.medium }}</div>
+        <div class="stat-sub">CVSS 4.0–6.9</div>
+    </div>
+    <div class="stat-card low">
+        <div class="stat-label">Low</div>
+        <div class="stat-value">{{ cve.low }}</div>
+        <div class="stat-sub">CVSS 0.1–3.9</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-label">Total CVEs</div>
+        <div class="stat-value">{{ cve.total }}</div>
+        <div class="stat-sub">from NVD database</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">CVE Findings</span>
+        <span class="badge badge-info">{{ cve.total }} total</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>CVE ID</th>
+                    <th>Severity</th>
+                    <th>Score</th>
+                    <th>Port</th>
+                    <th>Service</th>
+                    <th>Published</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for cve in data.all_cves | sort(attribute='score', reverse=True) %}
+            <tr>
+                <td class="monospace" style="color:var(--accent-cyan);font-size:12px">
+                    {{ cve.cve_id }}
+                </td>
+                <td>
+                    <span class="badge badge-{{ cve.severity.lower() }}">
+                        {{ cve.severity }}
+                    </span>
+                </td>
+                <td style="font-weight:700;color:
+                    {% if cve.score >= 9 %}var(--critical)
+                    {% elif cve.score >= 7 %}var(--high)
+                    {% elif cve.score >= 4 %}var(--medium)
+                    {% else %}var(--low){% endif %}">
+                    {{ cve.score }}
+                </td>
+                <td><span class="port-number">{{ cve.port }}</span></td>
+                <td>{{ cve.service }}</td>
+                <td class="monospace" style="font-size:12px">{{ cve.published }}</td>
+                <td style="max-width:320px;font-size:12px;color:var(--text-muted)">
+                    {{ cve.description[:200] }}...
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

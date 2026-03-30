@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Vulnerability Scanner{% endblock %} — SOC Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.6.0/dist/socket.io.min.js"></script>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <h2>VulnScanner</h2>
+        <p>v1.0.0 — Abbas Khan</p>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Dashboard</div>
+        <a href="/"        class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <span class="nav-icon">⬡</span> Overview
+        </a>
+        <a href="/ports"   class="nav-item {% if request.path == '/ports' %}active{% endif %}">
+            <span class="nav-icon">◈</span> Ports
+        </a>
+        <a href="/cves"    class="nav-item {% if request.path == '/cves' %}active{% endif %}">
+            <span class="nav-icon">◉</span> CVE Report
+        </a>
+        <a href="/owasp"   class="nav-item {% if request.path == '/owasp' %}active{% endif %}">
+            <span class="nav-icon">◎</span> OWASP Top 10
+        </a>
+        <a href="/mitre"   class="nav-item {% if request.path == '/mitre' %}active{% endif %}">
+            <span class="nav-icon">⬠</span> MITRE ATT&CK
+        </a>
+        <div class="nav-section-label" style="margin-top:12px">History</div>
+        <a href="/history" class="nav-item {% if request.path == '/history' %}active{% endif %}">
+            <span class="nav-icon">◷</span> Scan History
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        Port 5004 &nbsp;|&nbsp; REST API ready
+    </div>
+</aside>
+
+<!-- ── Main ── -->
+<main class="main">
+    <div class="topbar">
+        <div class="topbar-title">
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+            <p>{% block page_sub %}Vulnerability Assessment Scanner{% endblock %}</p>
+        </div>
+        <div class="topbar-actions">
+            <div class="scan-form">
+                <input type="text" id="scan-target" class="scan-input"
+                       placeholder="Target IP, domain, or URL"
+                       value="{{ data.target if data is defined and data.target is defined else '' }}">
+                <button class="btn btn-primary" onclick="startScan()">
+                    ▶ Scan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Scan status bar -->
+        <div class="scan-status-bar" id="scan-status-bar">
+            <div class="scan-spinner"></div>
+            <span id="scan-status-msg">Scanning...</span>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
